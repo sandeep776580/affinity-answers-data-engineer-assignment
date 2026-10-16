@@ -2,18 +2,14 @@
 -- Affinity Answers Data Engineer Intern Assignment
 -- Database: Rfam (MySQL)
 
--- ============================================================
--- QUESTION 1: Count Acacia taxa in the taxonomy table.
--- ============================================================
+-- QUESTION 1: Count Acacia taxa.
 
 SELECT COUNT(*) AS acacia_taxa_count
 FROM taxonomy
 WHERE species LIKE 'Acacia %';
 
 
--- ============================================================
 -- QUESTION 2: Find the wheat type with the longest sequence.
--- ============================================================
 
 SELECT
     t.species AS wheat_type,
@@ -28,26 +24,23 @@ ORDER BY longest_sequence_length DESC
 LIMIT 1;
 
 
--- ============================================================
--- QUESTION 3: Return page 9 of families whose maximum DNA
--- sequence length exceeds 1,000,000.
--- Page size: 15
--- Offset: (9 - 1) * 15 = 120
--- ============================================================
+-- QUESTION 3: Page 9, 15 families per page.
+-- Maximum sequence length greater than 1,000,000.
+-- Offset = (9 - 1) * 15 = 120.
 
 SELECT
     f.rfam_acc AS family_accession,
     f.rfam_id AS family_name,
     MAX(rs.length) AS max_sequence_length
-FROM rfamseq AS rs
+FROM family AS f
 JOIN full_region AS fr
-    ON fr.rfamseq_acc = rs.rfamseq_acc
-JOIN family AS f
-    ON f.rfam_acc = fr.rfam_acc
-WHERE rs.length > 1000000
+    ON fr.rfam_acc = f.rfam_acc
+JOIN rfamseq AS rs
+    ON rs.rfamseq_acc = fr.rfamseq_acc
 GROUP BY
     f.rfam_acc,
     f.rfam_id
+HAVING MAX(rs.length) > 1000000
 ORDER BY
     max_sequence_length DESC,
     family_accession ASC

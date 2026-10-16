@@ -1,20 +1,28 @@
+
+"""Run the three SQL queries against the public Rfam database."""
+
 from pathlib import Path
+
 import pymysql
 
 SQL_FILE = Path(__file__).with_name("answers.sql")
 
 
 def load_queries():
+    """Load SQL statements while ignoring SQL comment lines."""
     lines = [
         line
         for line in SQL_FILE.read_text(encoding="utf-8").splitlines()
         if not line.lstrip().startswith("--")
     ]
-    return [
+
+    queries = [
         query.strip()
         for query in "\n".join(lines).split(";")
         if query.strip()
     ]
+
+    return queries
 
 
 def main():
@@ -33,7 +41,7 @@ def main():
             user="rfamro",
             database="Rfam",
             connect_timeout=20,
-            read_timeout=60,
+            read_timeout=120,
             cursorclass=pymysql.cursors.DictCursor,
         )
 
@@ -57,8 +65,8 @@ def main():
 
                 if number == 3:
                     print(
-                        "Query 3 could not be verified against the live "
-                        "server. Its SQL remains in answers.sql."
+                        "Query 3 could not be verified against the "
+                        "live server. See question2_sql/NOTES.md."
                     )
                     break
 
