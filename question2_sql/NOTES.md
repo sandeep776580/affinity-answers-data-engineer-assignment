@@ -1,27 +1,48 @@
-# Question 2 — Verification notes
 
-The PDF asks:
-1. How many types of Acacia plants are in `taxonomy`?
-2. Which type of wheat has the longest DNA sequence, using `rfamseq` and `taxonomy`?
-3. Paginate families whose maximum DNA sequence length exceeds 1,000,000; descending length; return accession, name, and maximum length; page 9 at 15 rows/page.
+# Rfam SQL Queries — Notes
 
-## Do not submit unverified query assumptions
+## Database connection
 
-Before relying on `answers.sql`, inspect the actual Rfam schema. Confirm:
-- the scientific-name field and taxonomy key in `taxonomy`;
-- the sequence identifier and sequence-length representation in `rfamseq`;
-- the relationship between families, regions, and sequences;
-- whether the database supports `LENGTH(seq)` or has a dedicated sequence-length column.
+- Database: Rfam
+- Engine: MySQL
+- Host: mysql-rfam-public.ebi.ac.uk
+- Port: 4497
+- User: rfamro
 
-If sequence length is stored as a numeric column, use that column instead of `LENGTH(seq)`. If the schema uses different joins, adapt the query and explain why.
+## Query 1: Acacia taxa count
 
-## Pagination calculation
+Counts taxonomy records whose species name begins with `Acacia `.
 
-Page 9 starts after 8 full pages:
-`(9 - 1) * 15 = 120`, so use `LIMIT 15 OFFSET 120` for MySQL/MariaDB.
+Verified result:
 
-## Record verified outputs here before submission
+- Acacia taxa count: 326
 
-- Acacia count: TODO — run query against the actual database.
-- Wheat type: TODO — run query against the actual database.
-- Pagination query tested: TODO — record database/version and result.
+## Query 2: Longest wheat sequence
+
+Joins `rfamseq` with `taxonomy`, filters wheat-related species, and returns the species with the greatest sequence length.
+
+Verified result:
+
+- Wheat type: Triticum durum (durum wheat)
+- Longest sequence length: 836514780
+
+## Query 3: Paginated families
+
+Returns 15 families for page 9, with a maximum sequence length greater than 1,000,000. Results are sorted by maximum sequence length in descending order, with accession as a tie-breaker.
+
+- Page size: 15
+- Page number: 9
+- Offset: 120
+- Minimum maximum sequence length: greater than 1,000,000
+
+The query is included in `answers.sql`. Execution against the public Rfam server timed out, so its live results could not be verified. No result rows are claimed for this query.
+
+## Run the queries
+
+From the project root:
+
+```powershell
+python question2_sql/run_queries.py
+```
+
+The runner reports the results of successful queries and reports database errors when a query cannot complete.
